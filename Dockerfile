@@ -1,26 +1,18 @@
+FROM python:3.9
 
-FROM nikolaik/python-nodejs:python3.9-nodejs15-slim
+RUN apt update && apt upgrade -y
+RUN apt install python3-pip -y
+RUN apt install ffmpeg -y
 
-ENV DEBIAN_FRONTEND noninteractive
+RUN curl -sL https://deb.nodesource.com/setup_16.x | bash -
+RUN apt-get install -y nodejs
+RUN npm i -g npm
 
-RUN apt-get update -y && \
-    apt-get install -yqq \
-        python3-pip \
-        git \
-        ffmpeg && \
-    git clone https://github.com/subinps/MusicPlayer-Heroku.git && \
-    cd MusicPlayer-Heroku && \
-    git clone https://github.com/pytgcalls/pytgcalls.git && \
-    cd pytgcalls && \
-    npm install && \
-    npm run prepare && \
-    cd pytgcalls/js && \
-    npm install && \
-    cd ../../ && \
-    pip3 install -r requirements.txt && \
-    cp -r ./pytgcalls /MusicPlayer-Heroku/ && \
-    cd /MusicPlayer-Heroku && \
-    pip3 install -U -r requirements.txt
+RUN mkdir /app/
+COPY . /app
+WORKDIR /app
 
-WORKDIR /MusicPlayer-Heroku
-CMD ["python3" "main.py"]
+RUN pip3 install --upgrade pip
+RUN pip3 install -U -r requirements.txt
+
+CMD python3 main.py
